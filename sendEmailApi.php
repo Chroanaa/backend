@@ -19,9 +19,10 @@ try {
     $mail->Username   = 'perez.menard.nomiddlename@gmail.com';                     //SMTP username
     $mail->Password   = 'gkrr mnsf qhcg cgmv';                               //SMTP password
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-    $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-
-    //Recipients
+    $mail->Port       = 465;                                  //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+    $file = $_FILES['file'];
+    $tmp_name = $_FILES['file']["tmp_name"];
+    $file_name = $_FILES['file']["name"];
     $mail->setFrom('perez.menard.nomiddlename@gmail.com', 'Mailer');
     $mail->addAddress('gpgod24@gmail.com');     //Add a recipient
 
@@ -30,7 +31,7 @@ try {
     $mail->Subject = 'Here is the subject';
     $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
     $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
-
+    $mail->addAttachment($tmp_name, $file_name); //Add attachments
     $mail->send();
     echo json_encode(['status' => 'success', 'message' => 'Message has been sent']);
 } catch (Exception $e) {
