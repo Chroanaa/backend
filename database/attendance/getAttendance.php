@@ -4,21 +4,26 @@ header('Content-Type: application/json; charset=utf-8');
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 try{
-$query = "SELECT 
-    al.id AS attendance_id,
-    al.cadet_id,
-    ci.gender,
-    al.log_date,
-    al.time_in,
-    al.time_out
-FROM 
-    attendance_logs al
-JOIN 
-    cadet_info ci ON al.cadet_id = ci.cadet_id;";
-$stmt = $conn->prepare($query);
-$stmt->execute();
-$result = $stmt->get_result();
-$users = $result->fetch_all(MYSQLI_ASSOC);
+    $date = $_POST['date'];
+ $query = "SELECT 
+        al.id AS attendance_id,
+        al.cadet_id,
+        ci.gender,
+        al.log_date,
+        al.time_in,
+        al.time_out
+    FROM 
+        attendance_logs al
+    JOIN 
+        cadet_info ci ON al.cadet_id = ci.cadet_id
+    WHERE 
+        al.log_date = ?;";
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $date); 
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $users = $result->fetch_all(MYSQLI_ASSOC);
 $female_attendance_count = 0;
 $male_attendance_count = 0;
 $male_absence_count = 0;
@@ -46,6 +51,7 @@ echo json_encode(array(
     "female_attendance_count" => $female_attendance_count,
     "female_absence_count" => $female_absence_count,
 ));
+
 $stmt->close();
 }catch (Exception $e) {
     echo json_encode(array(

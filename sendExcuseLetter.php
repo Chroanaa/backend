@@ -6,35 +6,11 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 require 'vendor/autoload.php';
-function getEmail(){
-    include_once './databaseConfig/databaseConnection.php';
-    $query = "SELECT cadet_id,email from cadet_info WHERE email IS NOT NULL";
-    $stmt = $conn->prepare($query);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $emails = [];
-    foreach($result as $row){
-        $emails[] = $row['email'];
-    }
-    return $emails;
-}
-$type = $_POST['type'];
-if($type == "cadets"){
-    $message = "Hello Cadet, <br> You have been selected for the next round of the selection process. Please find the attached file for more details.";
-    $subject = "Cadet Selection Process";
-    sendEmail($message,$subject);
-}
-else if($type == "atr"){
-    $message = "Good Day this is the ATR for the day. <br> Please find the attached file for more details.";
-    $subject = "ATR for the day";
-    sendEmail($message,$subject);
-}else if($type == "cdc"){
-    $message = "Good Day this is the CDC for the day. <br> Please find the attached file for more details.";
-    $subject = "CDC for the day";
-    sendEmail($message,$subject);
-}
-function sendEmail($message,$subject){
+$message = $_POST['message'];
+$subject = $_POST['subject'];
+function sendEmail($sub,$mes){
     $mail = new PHPMailer(true);
+
     try {
     //Server settings
     $mail->SMTPDebug = SMTP::DEBUG_OFF;                      //Enable verbose debug output
@@ -45,23 +21,17 @@ function sendEmail($message,$subject){
     $mail->Password   = 'gkrr mnsf qhcg cgmv';                               //SMTP password
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
     $mail->Port       = 465;                                  //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-    $file = $_FILES['file'];
-    $tmp_name = $_FILES['file']["tmp_name"];
-    $file_name = $_FILES['file']["name"];
+  
     $mail->setFrom('perez.menard.nomiddlename@gmail.com', 'Training Proper');
-    $emails = getEmail(); 
-    foreach($emails as $email){
-        $mail->addAddress($email); 
-    }
-
+    $mail->addAddress('manulazy4@gmail.com');
     $mail->isHTML(true);                                  
-    $mail->Subject = $subject;
-    $mail->Body    = $message;
-    $mail->addAttachment($tmp_name, $file_name); 
+    $mail->Subject = $sub;
+    $mail->Body    = $mes;
     $mail->send();
     echo json_encode(['status' => 'success', 'message' => 'Message has been sent']);
 } catch (Exception $e) {
     echo json_encode(['status' => 'error', 'message' => "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"]);
 }
 }
+sendEmail($subject,$message);
 ?>

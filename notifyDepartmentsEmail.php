@@ -6,34 +6,26 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 require 'vendor/autoload.php';
-function getEmail(){
-    include_once './databaseConfig/databaseConnection.php';
-    $query = "SELECT cadet_id,email from cadet_info WHERE email IS NOT NULL";
-    $stmt = $conn->prepare($query);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $emails = [];
-    foreach($result as $row){
-        $emails[] = $row['email'];
-    }
-    return $emails;
+$attendance = $_POST['attendance'] ?? "false";
+$inventory = $_POST['inventory'] ?? "false";
+$grades = $_POST['grades'] ?? "false";
+
+if($attendance == "true"){
+    $message = "Good day this is from the CDC department requesting the attendance report please reply to this message and attach the report";
+    $subject = "Request for attendance report";
+    sendEmail($message,$subject, "gpgod24@gmail.com");
 }
-$type = $_POST['type'];
-if($type == "cadets"){
-    $message = "Hello Cadet, <br> You have been selected for the next round of the selection process. Please find the attached file for more details.";
-    $subject = "Cadet Selection Process";
-    sendEmail($message,$subject);
+if($inventory == "true"){
+    $message = "Good day this is from the CDC department requesting the inventory report please reply to this message and attach the report";
+    $subject = "Request for inventory report";
+    sendEmail($message,$subject, "perez.menard.nomiddlename@gmail.com");
 }
-else if($type == "atr"){
-    $message = "Good Day this is the ATR for the day. <br> Please find the attached file for more details.";
-    $subject = "ATR for the day";
-    sendEmail($message,$subject);
-}else if($type == "cdc"){
-    $message = "Good Day this is the CDC for the day. <br> Please find the attached file for more details.";
-    $subject = "CDC for the day";
-    sendEmail($message,$subject);
+if($grades == "true"){
+    $message = "Good day this is from the CDC department requesting the grades report please reply to this message and attach the report";
+    $subject = "Request for grades report";
+    sendEmail($message,$subject, "manulazy4@gmail.com");
 }
-function sendEmail($message,$subject){
+function sendEmail($message,$subject,$email){
     $mail = new PHPMailer(true);
     try {
     //Server settings
@@ -45,19 +37,13 @@ function sendEmail($message,$subject){
     $mail->Password   = 'gkrr mnsf qhcg cgmv';                               //SMTP password
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
     $mail->Port       = 465;                                  //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-    $file = $_FILES['file'];
-    $tmp_name = $_FILES['file']["tmp_name"];
-    $file_name = $_FILES['file']["name"];
-    $mail->setFrom('perez.menard.nomiddlename@gmail.com', 'Training Proper');
-    $emails = getEmail(); 
-    foreach($emails as $email){
-        $mail->addAddress($email); 
-    }
+    
+    $mail->setFrom('perez.menard.nomiddlename@gmail.com', 'CDC');
+    $mail->addAddress($email);
 
     $mail->isHTML(true);                                  
     $mail->Subject = $subject;
     $mail->Body    = $message;
-    $mail->addAttachment($tmp_name, $file_name); 
     $mail->send();
     echo json_encode(['status' => 'success', 'message' => 'Message has been sent']);
 } catch (Exception $e) {
