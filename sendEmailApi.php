@@ -8,9 +8,24 @@ use PHPMailer\PHPMailer\SMTP;
 
 require 'vendor/autoload.php';
 
-$mail = new PHPMailer(true);
-
-try {
+$type = $_POST['type'];
+if($type == "cadets"){
+    $message = "Hello Cadet, <br> You have been selected for the next round of the selection process. Please find the attached file for more details.";
+    $subject = "Cadet Selection Process";
+    sendEmail($message,$subject);
+}
+else if($type == "atr"){
+    $message = "Good Day this is the ATR for the day. <br> Please find the attached file for more details.";
+    $subject = "ATR for the day";
+    sendEmail($message,$subject);
+}else if($type == "cdc"){
+    $message = "Good Day this is the CDC for the day. <br> Please find the attached file for more details.";
+    $subject = "CDC for the day";
+    sendEmail($message,$subject);
+}
+function sendEmail($message,$subject){
+    $mail = new PHPMailer(true);
+    try {
     //Server settings
     $mail->SMTPDebug = SMTP::DEBUG_OFF;                      //Enable verbose debug output
     $mail->isSMTP();                                            //Send using SMTP
@@ -28,13 +43,13 @@ try {
 
     //Content
     $mail->isHTML(true);                                  //Set email format to HTML
-    $mail->Subject = 'Here is the subject';
-    $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
-    $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+    $mail->Subject = $subject;
+    $mail->Body    = $message;
     $mail->addAttachment($tmp_name, $file_name); //Add attachments
     $mail->send();
     echo json_encode(['status' => 'success', 'message' => 'Message has been sent']);
 } catch (Exception $e) {
     echo json_encode(['status' => 'error', 'message' => "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"]);
+}
 }
 ?>
